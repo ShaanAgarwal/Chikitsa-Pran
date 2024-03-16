@@ -9,6 +9,11 @@ const hospitalSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    profilePicture: {
+        type: String,
+        required: true,
+        default: 'https://www.shutterstock.com/shutterstock/photos/212251981/display_1500/stock-photo-modern-hospital-style-building-212251981.jpg'
+    },
     password: {
         type: String,
         required: true,

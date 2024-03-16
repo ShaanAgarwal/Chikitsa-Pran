@@ -243,7 +243,7 @@ const getHospitals = async (req, res) => {
             await hospital.save();
         }
 
-        res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })), disease });
+        res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture })), disease });
         await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
     } catch (error) {
         console.error(error);
