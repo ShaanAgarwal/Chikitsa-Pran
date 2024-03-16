@@ -2,6 +2,7 @@ const express = require('express');
 const connectDB = require('./config/connectDatabase');
 const hospitalRoutes = require('./routes/hospitalRoutes');
 const morgan = require('morgan');
+const Hospital = require('./models/hospitals.models');
 
 connectDB();
 

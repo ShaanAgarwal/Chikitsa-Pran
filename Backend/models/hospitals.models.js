@@ -35,6 +35,10 @@ const hospitalSchema = new mongoose.Schema({
         count: {
             type: Number,
             required: true
+        },
+        threshold: {
+            type: Number,
+            required: true
         }
     }],
     operationTheatres: [{
@@ -45,6 +49,10 @@ const hospitalSchema = new mongoose.Schema({
         count: {
             type: Number,
             required: true,
+        },
+        threshold: {
+            type: Number,
+            required: true
         }
     }],
     doctors: [{
@@ -56,6 +64,10 @@ const hospitalSchema = new mongoose.Schema({
             type: Number,
             required: true,
         },
+        threshold: {
+            type: Number,
+            required: true
+        }
     }],
 });
 
