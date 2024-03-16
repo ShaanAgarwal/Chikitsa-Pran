@@ -32,8 +32,8 @@ const registerHospital = async (req, res) => {
 };
 const addMedicalEquipment = async (req, res) => {
     try {
-        const { hospitalId, name, count } = req.body;
-        if (!hospitalId || !name || !count || count < 1) {
+        const { hospitalId, name, count, threshold } = req.body;
+        if (!hospitalId || !name || !count || !threshold || count < 1) {
             return res.status(400).json({ message: 'Please provide hospitalId, name, and a valid count for medical equipment.' });
         }
         const hospital = await Hospital.findById(hospitalId);
@@ -44,7 +44,7 @@ const addMedicalEquipment = async (req, res) => {
         if (existingEquipment) {
             return res.status(400).json({ message: 'Medical equipment already exists for this hospital.' });
         };
-        hospital.medicalEquipment.push({ name, count });
+        hospital.medicalEquipment.push({ name, count, threshold });
         await hospital.save();
         res.status(201).json({ message: 'Medical equipment added successfully.' });
     } catch (error) {
@@ -128,9 +128,9 @@ const updateOperationTheatre = async (req, res) => {
 
 const createDoctor = async (req, res) => {
     try {
-        const { hospitalId, speciality, count } = req.body;
+        const { hospitalId, speciality, count, threshold } = req.body;
 
-        if (!hospitalId || !speciality || !count) {
+        if (!hospitalId || !speciality || !count || !threshold) {
             return res.status(400).json({ message: 'Please provide hospitalId, speciality, and count for the doctor.' });
         };
 
@@ -139,7 +139,7 @@ const createDoctor = async (req, res) => {
             return res.status(404).json({ message: 'Hospital not found.' });
         };
 
-        hospital.doctors.push({ speciality, count });
+        hospital.doctors.push({ speciality, count, threshold });
         await hospital.save();
 
         res.status(201).json({ message: 'Doctor added to the hospital successfully.' });

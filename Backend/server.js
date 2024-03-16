@@ -4,6 +4,7 @@ const hospitalRoutes = require('./routes/hospitalRoutes');
 const morgan = require('morgan');
 const Hospital = require('./models/hospitals.models');
 const cors = require('cors');
+const { contactUsSendEmailSingle } = require('./utils/emailSend');
 
 connectDB();
 
