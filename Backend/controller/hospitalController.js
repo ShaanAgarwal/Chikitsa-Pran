@@ -221,7 +221,8 @@ const getHospitals = async (req, res) => {
 
 const getHospital = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email } = req.query;
+        console.log(email);
         if (!email) {
             return res.status(404).json({ message: "Email not found", success: false });
         };
