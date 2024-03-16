@@ -246,25 +246,32 @@ const getHospitals = async (req, res) => {
             return res.status(404).json({ message: "Disease not found." });
         };
         const hospitalsWithInsufficientEquipment = hospitalsWithDistances.filter(({ hospital }) => {
-            const missingEquipment = selectedDisease.medicalEquipment.filter(reqEquipment => {
+            const missingEquipment = selectedDisease.medicalEquipment.some(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
                 return !hospitalEquipment || hospitalEquipment.count < reqEquipment.count;
             });
-            return missingEquipment.length > 0;
+            return missingEquipment;
         });
         const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
-            const missingEquipment = selectedDisease.medicalEquipment.filter(reqEquipment => {
+            const missingEquipment = selectedDisease.medicalEquipment.some(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
                 return !hospitalEquipment || hospitalEquipment.count < reqEquipment.count;
             });
-            return missingEquipment.length === 0;
+            const missingDoctors = selectedDisease.doctors.some(reqDoctor => {
+                const hospitalDoctor = hospital.doctors.find(doc => doc.speciality === reqDoctor.speciality);
+                return !hospitalDoctor || hospitalDoctor.count < reqDoctor.count;
+            });
+            const missingTheaters = selectedDisease.operationTheatres.some(reqTheater => {
+                const hospitalTheater = hospital.operationTheatres.find(theater => theater.name === reqTheater.name);
+                return !hospitalTheater || hospitalTheater.count < reqTheater.count;
+            });
+            return !missingEquipment && !missingDoctors && !missingTheaters;
         });
         console.log('Hospitals with insufficient equipment:', hospitalsWithInsufficientEquipment.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })));
         for (const { hospital } of hospitalsWithInsufficientEquipment) {
             hospital.rejectionCount = (hospital.rejectionCount || 0) + 1;
             await hospital.save();
         }
-
         res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture })), disease });
         await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
     } catch (error) {
@@ -272,6 +279,7 @@ const getHospitals = async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
     };
 };
+
 
 const getHospital = async (req, res) => {
     try {
