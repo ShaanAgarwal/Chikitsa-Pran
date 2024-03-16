@@ -49,7 +49,6 @@ const addMedicalEquipment = async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
-const Hospital = require('../models/Hospital');
 
 const updateMedicalEquipment = async (req, res) => {
     try {
@@ -79,9 +78,6 @@ const updateMedicalEquipment = async (req, res) => {
     }
 };
 
-module.exports = updateMedicalEquipment;
-
-
 const createOperationTheatre = async (req, res) => {
     try {
         const { name, count } = req.body;
@@ -102,7 +98,6 @@ const createOperationTheatre = async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
-const Hospital = require('../models/Hospital');
 
 const updateOperationTheatre = async (req, res) => {
     try {
@@ -127,9 +122,6 @@ const updateOperationTheatre = async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
-module.exports = updateOperationTheatre;
-
-const Hospital = require('../models/Hospital');
 
 const createDoctor = async (req, res) => {
     try {
@@ -180,4 +172,4 @@ const updateDoctor = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital, createOperationTheatre, addMedicalEquipment,updateDoctor,createDoctor };
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor };
