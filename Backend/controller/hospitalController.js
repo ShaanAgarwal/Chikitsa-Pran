@@ -1,6 +1,6 @@
-import express from "express";
+const express = require('express');
 
-export const registerHospital = async (req, res) => {
+const registerHospital = async (req, res) => {
     try {
         return res.status(200).json({ message: "Running Properly", success: true });
     } catch (error) {
@@ -8,3 +8,5 @@ export const registerHospital = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     };
 };
+
+module.exports = { registerHospital };

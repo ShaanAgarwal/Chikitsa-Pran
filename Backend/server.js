@@ -1,15 +1,18 @@
-import express from 'express'
-import mongoose from 'mongoose';
-import cookieParser from 'cookie-parser';
-import path from 'path';
-import dotenv from 'dotenv';
+const express = require('express');
+const connectDB = require('./config/connectDatabase');
+const hospitalRoutes = require('./routes/hospitalRoutes');
+
+connectDB();
+
 const app = express();
 
 app.use(express.json());
+app.use('/api/hospital', hospitalRoutes);
 
-app.use(cookieParser());
-dotenv.config();
+app.get('/', (req, res) => {
+  return res.status(200).json({ message: "API is running properly", success: true });
+});
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000!');
-  });
+app.listen(8080, () => {
+  console.log('Server is running on port 8080');
+});

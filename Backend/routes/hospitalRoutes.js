@@ -1,7 +1,7 @@
-import express from 'express';
-import { registerHospital } from '../controller/hospitalController';
+const express = require('express');
+const { registerHospital } = require('../controller/hospitalController');
 const router = express.Router();
 
 router.post('/registerHospital', registerHospital);
 
-export default router;
+module.exports = router;
