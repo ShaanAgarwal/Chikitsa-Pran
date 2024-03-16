@@ -36,16 +36,16 @@ const loginHospital = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.status(404).json({ message: "Fields are missing", success: false });
+            return res.status(400).json({ message: "Fields are missing", success: false });
         };
         const existHospital = await Hospital.findOne({ email: email });
         if (!existHospital) {
             return res.status(404).json({ message: "Hospital with given email does not exist", success: false });
         };
-        if (existHospital.password != password) {
+        if (existHospital.password !== password) {
             return res.status(401).json({ message: "Password is incorrect", success: false });
         };
-        return res.status(200).json({ message: "Authentication Successful", success: true, existHospital });
+        return res.status(200).json({ message: "Authentication Successful", success: true, email: existHospital.email });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Internal Server Error", success: false });
