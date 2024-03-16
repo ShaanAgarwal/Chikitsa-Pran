@@ -57,4 +57,26 @@ const addMedicalEquipment = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital,addMedicalEquipment };
+const createOperationTheatre = async (req, res) => {
+    try {
+        const { name, count } = req.body;
+        const hospitalId = req.params.hospitalId;
+        const hospital = await Hospital.findById(hospitalId);
+        if (!hospital) {
+            return res.status(404).json({ message: 'Hospital not found.' });
+        };
+        const existingOperationTheatre = hospital.operationTheatres.find(theatre => theatre.name === name);
+        if (existingOperationTheatre) {
+            return res.status(400).json({ message: 'Operation theatre with this name already exists.' });
+        };
+        hospital.operationTheatres.push({ name, count });
+        await hospital.save();
+        res.status(201).json({ message: 'Operation theatre created successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
+
+module.exports = { registerHospital, createOperationTheatre, addMedicalEquipment };
