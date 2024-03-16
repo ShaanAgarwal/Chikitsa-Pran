@@ -206,7 +206,6 @@ const getHospitals = async (req, res) => {
         if (!latitude || !longitude || !disease) {
             return res.status(400).json({ message: "Latitude, longitude, and disease are required." });
         };
-
         const userLatitude = parseFloat(latitude);
         const userLongitude = parseFloat(longitude);
         const hospitals = await Hospital.find();
@@ -224,7 +223,6 @@ const getHospitals = async (req, res) => {
         if (!selectedDisease) {
             return res.status(404).json({ message: "Disease not found." });
         };
-
         const hospitalsWithInsufficientEquipment = hospitalsWithDistances.filter(({ hospital }) => {
             const missingEquipment = selectedDisease.medicalEquipment.filter(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
@@ -232,7 +230,6 @@ const getHospitals = async (req, res) => {
             });
             return missingEquipment.length > 0;
         });
-
         const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
             const missingEquipment = selectedDisease.medicalEquipment.filter(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
@@ -240,20 +237,19 @@ const getHospitals = async (req, res) => {
             });
             return missingEquipment.length === 0;
         });
-
         console.log('Hospitals with insufficient equipment:', hospitalsWithInsufficientEquipment.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })));
+        for (const { hospital } of hospitalsWithInsufficientEquipment) {
+            hospital.rejectionCount = (hospital.rejectionCount || 0) + 1;
+            await hospital.save();
+        }
 
-        // Send the JSON response first
         res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })), disease });
-
-        // After sending the response, send emails to hospitals with insufficient equipment
         await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal server error." });
-    }
+    };
 };
-
 
 const getHospital = async (req, res) => {
     try {
