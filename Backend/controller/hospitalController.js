@@ -27,5 +27,34 @@ const registerHospital = async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     };
 };
+const addMedicalEquipment = async (req, res) => {
+    try {
+        const { hospitalId, name, count } = req.body;
+        
+        if (!hospitalId || !name || !count || count < 1) {
+            return res.status(400).json({ message: 'Please provide hospitalId, name, and a valid count for medical equipment.' });
+        }
 
-module.exports = { registerHospital };
+
+        const hospital = await Hospital.findById(hospitalId);
+        if (!hospital) {
+            return res.status(404).json({ message: 'Hospital not found.' });
+        }
+
+        const existingEquipment = hospital.medicalEquipment.find(equipment => equipment.name === name);
+        if (existingEquipment) {
+            return res.status(400).json({ message: 'Medical equipment already exists for this hospital.' });
+        }
+
+        hospital.medicalEquipment.push({ name, count });
+
+        await hospital.save();
+
+        res.status(201).json({ message: 'Medical equipment added successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
+module.exports = { registerHospital,addMedicalEquipment };
