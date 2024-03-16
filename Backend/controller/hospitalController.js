@@ -48,7 +48,7 @@ const loginHospital = async (req, res) => {
         return res.status(200).json({ message: "Authentication Successful", success: true });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal Server Error", success: false });
+        return res.status(500).json({ message: "Internal Server Error", success: false, existHospital });
     };
 };
 
