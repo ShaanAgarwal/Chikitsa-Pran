@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerHospital,addMedicalEquipment, createOperationTheatre, updateMedicalEquipment, updateOperationTheatre, createDoctor, updateDoctor, getHospitals } = require('../controller/hospitalController');
+const { registerHospital,addMedicalEquipment, createOperationTheatre, updateMedicalEquipment, updateOperationTheatre, createDoctor, updateDoctor, getHospitals, getHospital } = require('../controller/hospitalController');
 const router = express.Router();
 
 router.post('/registerHospital', registerHospital);
@@ -10,5 +10,6 @@ router.put('/updateOperationTheatre/:hospitalId', updateOperationTheatre);
 router.post('/createDoctor', createDoctor);
 router.put('/updateDoctor', updateDoctor);
 router.get('/getHospitals', getHospitals);
+router.get('/getHospital', getHospital);
 
 module.exports = router;

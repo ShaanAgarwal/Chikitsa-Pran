@@ -219,4 +219,21 @@ const getHospitals = async (req, res) => {
     };
 };
 
-module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals };
+const getHospital = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(404).json({ message: "Email not found", success: false });
+        };
+        const hospital = await Hospital.findOne({ email: email });
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital with given email does not exist", success: false });
+        };
+        return res.status(200).json({ message: "Hospital Found", hospital, success: true });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal Server Error", success: false });
+    }
+};
+
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital };
