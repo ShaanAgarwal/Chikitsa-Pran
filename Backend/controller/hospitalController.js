@@ -251,7 +251,16 @@ const getHospitals = async (req, res) => {
                 return !hospitalEquipment || hospitalEquipment.count < reqEquipment.count;
             });
             return missingEquipment;
-        });
+        }).slice(0, 5); // Take only the top 5 hospitals with insufficient equipment
+
+        // Increment rejection count and save to database for hospitals with insufficient equipment
+        for (const { hospital } of hospitalsWithInsufficientEquipment) {
+            hospital.rejectionCount = (hospital.rejectionCount || 0) + 1;
+            await hospital.save();
+        }
+
+        
+        // Filter hospitals based on equipment, doctors, and theaters
         const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
             const missingEquipment = selectedDisease.medicalEquipment.some(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
@@ -267,19 +276,16 @@ const getHospitals = async (req, res) => {
             });
             return !missingEquipment && !missingDoctors && !missingTheaters;
         });
-        console.log('Hospitals with insufficient equipment:', hospitalsWithInsufficientEquipment.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })));
-        for (const { hospital } of hospitalsWithInsufficientEquipment) {
-            hospital.rejectionCount = (hospital.rejectionCount || 0) + 1;
-            await hospital.save();
-        }
+        
+        // Respond with filtered hospitals
         res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture })), disease });
+        // Send emails to hospitals with insufficient equipment
         await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal server error." });
     };
 };
-
 
 const getHospital = async (req, res) => {
     try {
@@ -299,4 +305,25 @@ const getHospital = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital };
+const sendNotification = async (req, res) => {
+    try {
+        const { name, email: patientEmail, disease } = req.body;
+        if (!name || !patientEmail || !disease) {
+            return res.status(400).json({ message: "All fields are required", success: false });
+        };
+        const hospital = await Hospital.findOne({ name: name });
+        if (!hospital) {
+            return res.status(404).json({ message: "Hospital not found", success: false });
+        };
+        const hospitalEmail = hospital.email;
+        console.log(hospital);
+        await contactUsSendEmailSingle(patientEmail, "Notification: Your Appointment", `Dear patient, you have an appointment for ${disease} treatment.`);
+        await contactUsSendEmailSingle(hospitalEmail, "Notification: New Patient Appointment", `Dear hospital, you have a new appointment for ${disease} treatment from ${patientEmail}.`);
+        return res.status(200).json({ message: "Notification sent successfully", success: true });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error", success: false });
+    }
+};
+
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital, sendNotification };
