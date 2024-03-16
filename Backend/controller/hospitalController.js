@@ -6,9 +6,9 @@ const { contactUsSendEmailSingle } = require('../utils/emailSend');
 
 const registerHospital = async (req, res) => {
     try {
-        const { name, email, password, location } = req.body;
-        if (!name || !email || !password || !location || !location.latitude || !location.longitude) {
-            return res.status(400).json({ message: 'Please provide name, email, password, and location.' });
+        const { name, email, password, location, profilePicture } = req.body;
+        if (!name || !email || !password || !location || !location.latitude || !location.longitude || !profilePicture) {
+            return res.status(400).json({ message: 'Please provide name, email, password, location and profile Picture' });
         }
         const existingHospital = await Hospital.findOne({ email });
         if (existingHospital) {
@@ -21,7 +21,8 @@ const registerHospital = async (req, res) => {
             location: {
                 latitude: location.latitude,
                 longitude: location.longitude
-            }
+            },
+            profilePicture
         });
         await hospital.save();
         res.status(201).json({ message: 'Hospital registered successfully.' });
@@ -30,10 +31,11 @@ const registerHospital = async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     };
 };
+
 const addMedicalEquipment = async (req, res) => {
     try {
-        const { hospitalId, name, count, threshold } = req.body;
-        if (!hospitalId || !name || !count || !threshold || count < 1) {
+        const { hospitalId, name, count, threshold, imageUrl } = req.body;
+        if (!hospitalId || !name || !count || !threshold || count < 1 || imageUrl) {
             return res.status(400).json({ message: 'Please provide hospitalId, name, and a valid count for medical equipment.' });
         }
         const hospital = await Hospital.findById(hospitalId);
@@ -44,7 +46,7 @@ const addMedicalEquipment = async (req, res) => {
         if (existingEquipment) {
             return res.status(400).json({ message: 'Medical equipment already exists for this hospital.' });
         };
-        hospital.medicalEquipment.push({ name, count, threshold });
+        hospital.medicalEquipment.push({ name, count, threshold, imageUrl });
         await hospital.save();
         res.status(201).json({ message: 'Medical equipment added successfully.' });
     } catch (error) {
