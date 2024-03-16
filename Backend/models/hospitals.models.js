@@ -39,7 +39,12 @@ const hospitalSchema = new mongoose.Schema({
         threshold: {
             type: Number,
             required: true
-        }
+        },
+        imageUrl: {
+            type: String,
+            required: true,
+            default: 'image-url.png'
+        },
     }],
     operationTheatres: [{
         name: {
