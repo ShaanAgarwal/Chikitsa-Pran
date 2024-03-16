@@ -1,5 +1,7 @@
 const express = require('express');
 const Hospital = require('../models/hospitals.models');
+const diseasesData = require("../diseaseData");
+const geolib = require("geolib");
 
 const registerHospital = async (req, res) => {
     try {
@@ -172,4 +174,49 @@ const updateDoctor = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor };
+const getHospitals = async (req, res) => {
+    try {
+        const { latitude, longitude, disease } = req.query;
+        if (!latitude || !longitude || !disease) {
+            return res.status(400).json({ message: "Latitude, longitude, and disease are required." });
+        };
+        const userLatitude = parseFloat(latitude);
+        const userLongitude = parseFloat(longitude);
+        const hospitals = await Hospital.find();
+        const hospitalsWithDistances = hospitals.map(hospital => {
+            const hospitalLatitude = hospital.location.latitude;
+            const hospitalLongitude = hospital.location.longitude;
+            const distance = geolib.getDistance(
+                { latitude: userLatitude, longitude: userLongitude },
+                { latitude: hospitalLatitude, longitude: hospitalLongitude }
+            );
+            console.log(distance);
+            return { ...hospital.toObject(), distance };
+        });
+        hospitalsWithDistances.sort((a, b) => a.distance - b.distance);
+        const diseaseData = diseasesData.find(item => item.disease.toLowerCase() === disease.toLowerCase());
+        if (!diseaseData) {
+            return res.status(404).json({ message: "Disease not found." });
+        };
+        const filteredHospitals = hospitalsWithDistances.filter(hospital => {
+            const isEquipmentAvailable = diseaseData.medicalEquipment.every(reqEquipment => {
+                const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
+                return hospitalEquipment && hospitalEquipment.count >= reqEquipment.count;
+            });
+            const isOperationTheatreAvailable = diseaseData.operationTheatres.every(reqTheatre => {
+                return hospital.operationTheatres.some(theatre => theatre.name === reqTheatre.name);
+            });
+            const isDoctorAvailable = diseaseData.doctors.every(reqDoctor => {
+                const hospitalDoctor = hospital.doctors.find(doctor => doctor.speciality === reqDoctor.speciality);
+                return hospitalDoctor && hospitalDoctor.count >= reqDoctor.count;
+            });
+            return isEquipmentAvailable && isOperationTheatreAvailable && isDoctorAvailable;
+        });
+        res.json(filteredHospitals);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error." });
+    };
+};
+
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals };
