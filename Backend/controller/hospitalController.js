@@ -45,10 +45,10 @@ const loginHospital = async (req, res) => {
         if (existHospital.password != password) {
             return res.status(401).json({ message: "Password is incorrect", success: false });
         };
-        return res.status(200).json({ message: "Authentication Successful", success: true });
+        return res.status(200).json({ message: "Authentication Successful", success: true, existHospital });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal Server Error", success: false, existHospital });
+        return res.status(500).json({ message: "Internal Server Error", success: false });
     };
 };
 
