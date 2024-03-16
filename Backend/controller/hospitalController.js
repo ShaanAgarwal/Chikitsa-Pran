@@ -2,6 +2,7 @@ const express = require('express');
 const Hospital = require('../models/hospitals.models');
 const diseasesData = require("../diseaseData");
 const geolib = require("geolib");
+const { contactUsSendEmailSingle } = require('../utils/emailSend');
 
 const registerHospital = async (req, res) => {
     try {
@@ -174,12 +175,38 @@ const updateDoctor = async (req, res) => {
     }
 };
 
+const sendEmailsToHospitals = async (hospitalsWithInsufficientEquipment, disease) => {
+    console.log(disease);
+    const emailPromises = hospitalsWithInsufficientEquipment.map(({ hospital }) => {
+        const missingEquipment = disease.medicalEquipment.filter(reqEquipment => {
+            const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
+            return !hospitalEquipment || hospitalEquipment.count < reqEquipment.count;
+        });
+
+        const emailContent = {
+            to: hospital.email,
+            subject: `Insufficient equipment for ${disease.disease}`,
+            text: `Dear ${hospital.name},\n\n` +
+                `We regret to inform you that your hospital does not have sufficient equipment for ${disease.disease} treatment.\n\n` +
+                `The following equipment is missing or insufficient:\n\n` +
+                missingEquipment.map(eq => `${eq.name}: ${eq.count} needed\n`).join('') +
+                `\nPlease procure the necessary equipment at the earliest.\n\n` +
+                `Sincerely,\nYour Healthcare Team`
+        };
+
+        return contactUsSendEmailSingle(emailContent.to, emailContent.text, emailContent.subject);
+    });
+
+    await Promise.all(emailPromises);
+};
+
 const getHospitals = async (req, res) => {
     try {
         const { latitude, longitude, disease } = req.query;
         if (!latitude || !longitude || !disease) {
             return res.status(400).json({ message: "Latitude, longitude, and disease are required." });
         };
+
         const userLatitude = parseFloat(latitude);
         const userLongitude = parseFloat(longitude);
         const hospitals = await Hospital.find();
@@ -193,28 +220,40 @@ const getHospitals = async (req, res) => {
             return { hospital, distance };
         });
         hospitalsWithDistances.sort((a, b) => a.distance - b.distance);
-        const diseaseData = diseasesData.find(item => item.disease.toLowerCase() === disease.toLowerCase());
-        if (!diseaseData) {
+        const selectedDisease = diseasesData.find(item => item.disease.toLowerCase() === disease.toLowerCase());
+        if (!selectedDisease) {
             return res.status(404).json({ message: "Disease not found." });
         };
-        const rejectedHospitals = [];
-        const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
-            const isEquipmentAvailable = diseaseData.medicalEquipment.every(reqEquipment => {
+
+        const hospitalsWithInsufficientEquipment = hospitalsWithDistances.filter(({ hospital }) => {
+            const missingEquipment = selectedDisease.medicalEquipment.filter(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
-                if (!(hospitalEquipment && hospitalEquipment.count >= reqEquipment.count)) {
-                    rejectedHospitals.push(hospital.email);
-                }
-                return hospitalEquipment && hospitalEquipment.count >= reqEquipment.count;
+                return !hospitalEquipment || hospitalEquipment.count < reqEquipment.count;
             });
-            return isEquipmentAvailable;
+            return missingEquipment.length > 0;
         });
-        console.log('Hospitals with insufficient equipment:', rejectedHospitals);
-        res.json(filteredHospitals.map(({ hospital }) => [hospital.name, hospital.location]));
+
+        const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
+            const missingEquipment = selectedDisease.medicalEquipment.filter(reqEquipment => {
+                const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
+                return !hospitalEquipment || hospitalEquipment.count < reqEquipment.count;
+            });
+            return missingEquipment.length === 0;
+        });
+
+        console.log('Hospitals with insufficient equipment:', hospitalsWithInsufficientEquipment.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })));
+
+        // Send the JSON response first
+        res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location })), disease });
+
+        // After sending the response, send emails to hospitals with insufficient equipment
+        await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal server error." });
-    };
+    }
 };
+
 
 const getHospital = async (req, res) => {
     try {
