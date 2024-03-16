@@ -1,8 +1,9 @@
 const express = require('express');
-const { registerHospital,addMedicalEquipment, createOperationTheatre, updateMedicalEquipment, updateOperationTheatre, createDoctor, updateDoctor, getHospitals, getHospital } = require('../controller/hospitalController');
+const { registerHospital,addMedicalEquipment, createOperationTheatre, updateMedicalEquipment, updateOperationTheatre, createDoctor, updateDoctor, getHospitals, getHospital, loginHospital } = require('../controller/hospitalController');
 const router = express.Router();
 
 router.post('/registerHospital', registerHospital);
+router.post('/loginHospital', loginHospital);
 router.post('/:hospitalId/operation-theatre', createOperationTheatre);
 router.post("/addMedicalEquipment",addMedicalEquipment);
 router.put('/updateMedicalEquipment', updateMedicalEquipment);

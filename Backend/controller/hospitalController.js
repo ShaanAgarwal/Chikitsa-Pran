@@ -32,6 +32,26 @@ const registerHospital = async (req, res) => {
     };
 };
 
+const loginHospital = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(404).json({ message: "Fields are missing", success: false });
+        };
+        const existHospital = await Hospital.findOne({ email: email });
+        if (!existHospital) {
+            return res.status(404).json({ message: "Hospital with given email does not exist", success: false });
+        };
+        if (existHospital.password != password) {
+            return res.status(401).json({ message: "Password is incorrect", success: false });
+        };
+        return res.status(200).json({ message: "Authentication Successful", success: true });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal Server Error", success: false });
+    };
+};
+
 const addMedicalEquipment = async (req, res) => {
     try {
         const { hospitalId, name, count, threshold, imageUrl } = req.body;
@@ -271,4 +291,4 @@ const getHospital = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital };
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital };
