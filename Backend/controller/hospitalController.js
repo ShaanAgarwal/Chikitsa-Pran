@@ -190,29 +190,26 @@ const getHospitals = async (req, res) => {
                 { latitude: userLatitude, longitude: userLongitude },
                 { latitude: hospitalLatitude, longitude: hospitalLongitude }
             );
-            console.log(distance);
-            return { ...hospital.toObject(), distance };
+            return { hospital, distance };
         });
         hospitalsWithDistances.sort((a, b) => a.distance - b.distance);
         const diseaseData = diseasesData.find(item => item.disease.toLowerCase() === disease.toLowerCase());
         if (!diseaseData) {
             return res.status(404).json({ message: "Disease not found." });
         };
-        const filteredHospitals = hospitalsWithDistances.filter(hospital => {
+        const rejectedHospitals = [];
+        const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
             const isEquipmentAvailable = diseaseData.medicalEquipment.every(reqEquipment => {
                 const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
+                if (!(hospitalEquipment && hospitalEquipment.count >= reqEquipment.count)) {
+                    rejectedHospitals.push(hospital.email);
+                }
                 return hospitalEquipment && hospitalEquipment.count >= reqEquipment.count;
             });
-            const isOperationTheatreAvailable = diseaseData.operationTheatres.every(reqTheatre => {
-                return hospital.operationTheatres.some(theatre => theatre.name === reqTheatre.name);
-            });
-            const isDoctorAvailable = diseaseData.doctors.every(reqDoctor => {
-                const hospitalDoctor = hospital.doctors.find(doctor => doctor.speciality === reqDoctor.speciality);
-                return hospitalDoctor && hospitalDoctor.count >= reqDoctor.count;
-            });
-            return isEquipmentAvailable && isOperationTheatreAvailable && isDoctorAvailable;
+            return isEquipmentAvailable;
         });
-        res.json(filteredHospitals);
+        console.log('Hospitals with insufficient equipment:', rejectedHospitals);
+        res.json(filteredHospitals.map(({ hospital }) => [hospital.name, hospital.location]));
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal server error." });
