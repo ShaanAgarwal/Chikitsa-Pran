@@ -18,6 +18,14 @@ const hospitalSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    phoneNumber: {
+        type: Number,
+        required: true,
+    },
+    ambulancePhoneNumber: {
+        type: Number,
+        required: true,
+    },
     location: {
         latitude: {
             type: Number,

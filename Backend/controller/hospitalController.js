@@ -201,7 +201,6 @@ const updateDoctor = async (req, res) => {
 };
 
 const sendEmailsToHospitals = async (hospitalsWithInsufficientEquipment, disease) => {
-    console.log(disease);
     const emailPromises = hospitalsWithInsufficientEquipment.map(({ hospital }) => {
         const missingEquipment = disease.medicalEquipment.filter(reqEquipment => {
             const hospitalEquipment = hospital.medicalEquipment.find(item => item.name === reqEquipment.name);
@@ -246,7 +245,7 @@ const getHospitals = async (req, res) => {
         hospitalsWithDistances.sort((a, b) => a.distance - b.distance);
         const selectedDisease = diseasesData.find(item => item.disease.toLowerCase() === disease.toLowerCase());
         if (!selectedDisease) {
-            return res.status(404).json({ message: "Disease not found." });
+            return res.json({ message: "Disease not found." });
         };
         const hospitalsWithInsufficientEquipment = hospitalsWithDistances.filter(({ hospital }) => {
             const missingEquipment = selectedDisease.medicalEquipment.some(reqEquipment => {
@@ -288,7 +287,7 @@ const getHospitals = async (req, res) => {
         });
 
         // Respond with filtered hospitals
-        res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture })), disease });
+        res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture, phoneNumber: hospital.phoneNumber, ambulancePhoneNumber: hospital.ambulancePhoneNumber })), disease });
 
         // Send emails to hospitals with insufficient equipment
         await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
@@ -301,7 +300,6 @@ const getHospitals = async (req, res) => {
 const getHospital = async (req, res) => {
     try {
         const { email } = req.query;
-        console.log(email);
         if (!email) {
             return res.status(404).json({ message: "Email not found", success: false });
         };
@@ -318,8 +316,10 @@ const getHospital = async (req, res) => {
 
 const sendNotification = async (req, res) => {
     try {
-        const { name, email: patientEmail, disease } = req.body;
-        console.log(req.body);
+        const { hospitalname, email, symptoms } = req.body;
+        const name = hospitalname;
+        const disease = symptoms;
+        const patientEmail = email;
         if (!name || !patientEmail || !disease) {
             return res.status(400).json({ message: "All fields are required", success: false });
         };
@@ -328,8 +328,7 @@ const sendNotification = async (req, res) => {
             return res.status(404).json({ message: "Hospital not found", success: false });
         };
         const hospitalEmail = hospital.email;
-        console.log(hospital);
-        await contactUsSendEmailSingle(patientEmail, "Notification: Your Appointment", `Dear patient, you have an appointment for ${disease} treatment.`);
+        await contactUsSendEmailSingle(patientEmail, `Dear patient, you have an appointment for ${disease} treatment. https://www.google.com/maps/dir/?api=1&destination=${hospital.location.latitude},${hospital.location.longitude}, Ambulance Phone Number: ${hospital.ambulancePhoneNumber}`, "Your Appointment");
         await contactUsSendEmailSingle(hospitalEmail, "Notification: New Patient Appointment", `Dear hospital, you have a new appointment for ${disease} treatment from ${patientEmail}.`);
         return res.status(200).json({ message: "Notification sent successfully", success: true });
     } catch (error) {
