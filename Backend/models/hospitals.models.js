@@ -21,10 +21,12 @@ const hospitalSchema = new mongoose.Schema({
     phoneNumber: {
         type: Number,
         required: true,
+        default: 1023456789,
     },
     ambulancePhoneNumber: {
         type: Number,
         required: true,
+        default: 2839288938
     },
     location: {
         latitude: {

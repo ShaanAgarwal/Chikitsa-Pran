@@ -9,8 +9,8 @@ const nodemailer = require('nodemailer');
 
 const registerHospital = async (req, res) => {
     try {
-        const { name, email, password, location, profilePicture } = req.body;
-        if (!name || !email || !password || !location || !location.latitude || !location.longitude || !profilePicture) {
+        const { name, email, password, location, profilePicture, phoneNumber, ambulancePhoneNumber } = req.body;
+        if (!name || !email || !password || !location || !location.latitude || !location.longitude || !profilePicture || !phoneNumber || !ambulancePhoneNumber) {
             return res.status(400).json({ message: 'Please provide name, email, password, location and profile Picture' });
         }
         const existingHospital = await Hospital.findOne({ email });
@@ -25,7 +25,9 @@ const registerHospital = async (req, res) => {
                 latitude: location.latitude,
                 longitude: location.longitude
             },
-            profilePicture
+            profilePicture,
+            phoneNumber,
+            ambulancePhoneNumber
         });
         await hospital.save();
         res.status(201).json({ message: 'Hospital registered successfully.' });
