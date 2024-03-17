@@ -298,7 +298,6 @@ const getHospitals = async (req, res) => {
     };
 };
 
-
 const getHospital = async (req, res) => {
     try {
         const { email } = req.query;
@@ -320,6 +319,7 @@ const getHospital = async (req, res) => {
 const sendNotification = async (req, res) => {
     try {
         const { name, email: patientEmail, disease } = req.body;
+        console.log(req.body);
         if (!name || !patientEmail || !disease) {
             return res.status(400).json({ message: "All fields are required", success: false });
         };
