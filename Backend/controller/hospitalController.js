@@ -259,7 +259,7 @@ const getHospitals = async (req, res) => {
             await hospital.save();
         }
 
-        
+
         // Filter hospitals based on equipment, doctors, and theaters
         const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
             const missingEquipment = selectedDisease.medicalEquipment.some(reqEquipment => {
@@ -276,7 +276,7 @@ const getHospitals = async (req, res) => {
             });
             return !missingEquipment && !missingDoctors && !missingTheaters;
         });
-        
+
         // Respond with filtered hospitals
         res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture })), disease });
         // Send emails to hospitals with insufficient equipment
@@ -326,4 +326,19 @@ const sendNotification = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital, sendNotification };
+const rejectionHospitalInformation = async (req, res) => {
+    try {
+        const hospitals = await Hospital.find({ rejectionCount: { $gte: 80 } });
+        if (hospitals.length === 0) {
+            return res.status(404).json({ message: "No hospitals found with rejection count greater than or equal to 80." });
+        };
+        const hospitalNames = hospitals.map(hospital => hospital.name).join(', ');
+        await contactUsSendEmailSingle('chesstrainingone@gmail.com', `Hospitals with high rejection count (>=80): ${hospitalNames}`, 'Hospitals With High Rejection Count');
+        return res.status(200).json({ message: "Email Sent Successfully", success: true });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal Server Error", success: false });
+    }
+};
+
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital, sendNotification, rejectionHospitalInformation };
