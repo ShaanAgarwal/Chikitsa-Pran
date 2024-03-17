@@ -3,6 +3,9 @@ const Hospital = require('../models/hospitals.models');
 const diseasesData = require("../diseaseData");
 const geolib = require("geolib");
 const { contactUsSendEmailSingle } = require('../utils/emailSend');
+const Rejection = require('../models/rejection.models');
+const ExcelJS = require('exceljs');
+const nodemailer = require('nodemailer');
 
 const registerHospital = async (req, res) => {
     try {
@@ -55,7 +58,7 @@ const loginHospital = async (req, res) => {
 const addMedicalEquipment = async (req, res) => {
     try {
         const { hospitalId, name, count, threshold, imageUrl } = req.body;
-        if (!hospitalId || !name || !count || !threshold || count < 1 || imageUrl) {
+        if (!hospitalId || !name || !count || !threshold || count < 1 || !imageUrl) {
             return res.status(400).json({ message: 'Please provide hospitalId, name, and a valid count for medical equipment.' });
         }
         const hospital = await Hospital.findById(hospitalId);
@@ -105,7 +108,7 @@ const updateMedicalEquipment = async (req, res) => {
 
 const createOperationTheatre = async (req, res) => {
     try {
-        const { name, count } = req.body;
+        const { name, count, threshold } = req.body;
         const hospitalId = req.params.hospitalId;
         const hospital = await Hospital.findById(hospitalId);
         if (!hospital) {
@@ -115,7 +118,7 @@ const createOperationTheatre = async (req, res) => {
         if (existingOperationTheatre) {
             return res.status(400).json({ message: 'Operation theatre with this name already exists.' });
         };
-        hospital.operationTheatres.push({ name, count });
+        hospital.operationTheatres.push({ name, count, threshold });
         await hospital.save();
         res.status(201).json({ message: 'Operation theatre created successfully.' });
     } catch (error) {
@@ -257,8 +260,15 @@ const getHospitals = async (req, res) => {
         for (const { hospital } of hospitalsWithInsufficientEquipment) {
             hospital.rejectionCount = (hospital.rejectionCount || 0) + 1;
             await hospital.save();
-        }
 
+            // Create a new record in the rejectionSchema
+            const rejectionRecord = new Rejection({
+                hospitalName: hospital.name,
+                disease: disease,
+                timestamp: new Date()
+            });
+            await rejectionRecord.save();
+        }
 
         // Filter hospitals based on equipment, doctors, and theaters
         const filteredHospitals = hospitalsWithDistances.filter(({ hospital }) => {
@@ -279,6 +289,7 @@ const getHospitals = async (req, res) => {
 
         // Respond with filtered hospitals
         res.json({ hospitals: filteredHospitals.map(({ hospital }) => ({ name: hospital.name, location: hospital.location, profilePic: hospital.profilePicture })), disease });
+
         // Send emails to hospitals with insufficient equipment
         await sendEmailsToHospitals(hospitalsWithInsufficientEquipment, selectedDisease);
     } catch (error) {
@@ -286,6 +297,7 @@ const getHospitals = async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
     };
 };
+
 
 const getHospital = async (req, res) => {
     try {
@@ -341,4 +353,45 @@ const rejectionHospitalInformation = async (req, res) => {
     }
 };
 
-module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital, sendNotification, rejectionHospitalInformation };
+const sendExcelSheet = async (req,res) => {
+    try {
+        const rejections = await Rejection.find();
+        if (rejections.length === 0) {
+            return res.status(404).json({ message: "No rejection data found." });
+        };
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Rejections');
+        worksheet.addRow(['Hospital Name', 'Disease', 'Timestamp']);
+        rejections.forEach(rejection => {
+            worksheet.addRow([rejection.hospitalName, rejection.disease, rejection.timestamp]);
+        });
+        const buffer = await workbook.xlsx.writeBuffer();
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'chesstrainingone@gmail.com',
+                pass: 'yeus dfbz xill lnii'
+            }
+        });
+        const mailOptions = {
+            from: 'chesstrainingone@gmail.com',
+            to: 'chesstrainingone@gmail.com',
+            subject: 'Rejection Data Export',
+            text: 'Please find attached the rejection data export.',
+            attachments: [
+                {
+                    filename: 'rejection_data.xlsx',
+                    content: buffer
+                }
+            ]
+        };
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+        res.status(200).json({ message: "Rejection data exported and email sent successfully." });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+}
+
+module.exports = { registerHospital, createOperationTheatre, updateMedicalEquipment, addMedicalEquipment, updateOperationTheatre, updateDoctor, createDoctor, getHospitals, getHospital, loginHospital, sendNotification, rejectionHospitalInformation, sendExcelSheet };
