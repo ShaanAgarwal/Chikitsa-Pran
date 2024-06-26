@@ -131,7 +131,7 @@ export default function Login() { // Renamed to Login
           </Stack>
         </form>
         <Text margin={"auto"} fontSize={"sm"} display={"inline-block"}>
-          Don't have an account?
+          Don&apos;t have an account?
         </Text>
         <Link href="/signup" display={"inline-block"} fontSize={"sm"}>
           <Text
