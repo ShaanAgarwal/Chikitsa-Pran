@@ -10,9 +10,9 @@ const nodemailer = require('nodemailer');
 const registerHospital = async (req, res) => {
     try {
         const { name, email, password, location, profilePicture, phoneNumber, ambulancePhoneNumber } = req.body;
-        if (!name || !email || !password || !location || !location.latitude || !location.longitude || !profilePicture || !phoneNumber || !ambulancePhoneNumber) {
-            return res.status(400).json({ message: 'Please provide name, email, password, location and profile Picture' });
-        }
+        // if (!name || !email || !password || !location || !location.latitude || !location.longitude || !profilePicture || !phoneNumber || !ambulancePhoneNumber) {
+        //     return res.status(400).json({ message: 'Please provide name, email, password, location and profile Picture' });
+        // }
         const existingHospital = await Hospital.findOne({ email });
         if (existingHospital) {
             return res.status(400).json({ message: 'Hospital with this email already exists.' });
@@ -346,7 +346,7 @@ const rejectionHospitalInformation = async (req, res) => {
             return res.status(404).json({ message: "No hospitals found with rejection count greater than or equal to 80." });
         };
         const hospitalNames = hospitals.map(hospital => hospital.name).join(', ');
-        await contactUsSendEmailSingle('chesstrainingone@gmail.com', `Hospitals with high rejection count (>=80): ${hospitalNames}`, 'Hospitals With High Rejection Count');
+        await contactUsSendEmailSingle('agarwalshaan27@gmail.com', `Hospitals with high rejection count (>=80): ${hospitalNames}`, 'Hospitals With High Rejection Count');
         return res.status(200).json({ message: "Email Sent Successfully", success: true });
     } catch (error) {
         console.log(error);
@@ -370,13 +370,13 @@ const sendExcelSheet = async (req,res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'chesstrainingone@gmail.com',
-                pass: 'yeus dfbz xill lnii'
+                user: 'agarwalshaan27@gmail.com',
+                pass: 'mifz bvwq pdav lkjd'
             }
         });
         const mailOptions = {
-            from: 'chesstrainingone@gmail.com',
-            to: 'chesstrainingone@gmail.com',
+            from: 'agarwalshaan27@gmail.com',
+            to: 'agarwalshaan27@gmail.com',
             subject: 'Rejection Data Export',
             text: 'Please find attached the rejection data export.',
             attachments: [

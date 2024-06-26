@@ -6,6 +6,7 @@ import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Pacifico } from 'next/font/google';
+import { backendURL } from './backendURL';
 const pacifico = Pacifico({ subsets: ['latin'], weight: '400' });
 function signup() {
   const [name, setName] = useState('');
@@ -48,7 +49,7 @@ function signup() {
     e.preventDefault();
     try {
     //   const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = 'http://192.168.242.52:8080/api/hospital/registerHospital'; // Adjust the URL for adding a new doctor
+      const url = `${backendURL}/api/hospital/registerHospital`; // Adjust the URL for adding a new doctor
       
       // Fetch geolocation information
       const position = await getCurrentPosition();

@@ -5,13 +5,13 @@ async function contactUsSendEmailSingle(email, query, disease) {
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
-                user: 'chesstrainingone@gmail.com',
-                pass: 'yeus dfbz xill lnii'
+                user: 'agarwalshaan27@gmail.com',
+                pass: 'mifz bvwq pdav lkjd'
             },
         });
 
         const mailOptions = {
-            from: 'yeus dfbz xill lnii',
+            from: 'agarwalshaan27@gmail.com',
             to: email,
             subject: `${disease}`,
             text: `${query}`,

@@ -1,13 +1,14 @@
 import React from 'react'
 import { Flex,Button } from '@chakra-ui/react'
 import { useRouter } from 'next/router';
+import { backendURL } from './backendURL';
 function admin() {
 
     const router=useRouter();
 
     const handlePostMethod = () => {
         // Define the URL for your POST request
-        const url = 'http://192.168.242.52:8080/api/hospital/sendExcel';
+        const url = `${backendURL}/api/hospital/sendExcel`;
 
         // Define the data you want to send
         const postData = {
@@ -42,7 +43,7 @@ function admin() {
 
     const handleGetMethod = () => {
         // Define the URL for your POST request
-        router.push('http://192.168.242.52:8080/api/hospital/rejectionHospitalInformation');
+        router.push(`${backendURL}/api/hospital/rejectionHospitalInformation`);
     };
 
 

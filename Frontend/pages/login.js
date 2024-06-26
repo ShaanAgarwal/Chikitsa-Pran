@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { Box, Flex,Text, Heading, Input, Button, Link as ChakraLink,useToast,Stack,Avatar } from "@chakra-ui/react";
 
 import { Pacifico } from 'next/font/google';
+import { backendURL } from './backendURL';
 const pacifico = Pacifico({ subsets: ['latin'], weight: '400' });
 
 
@@ -24,7 +25,7 @@ export default function login() {
     setIsLoading(true);
     // Call your submit function here with email and password
     try {
-      const url = 'http://192.168.242.52:8080/api/hospital/loginHospital'; // Adjust the URL for the login endpoint
+      const url = `${backendURL}/api/hospital/loginHospital`; // Adjust the URL for the login endpoint
   
       // Construct the request payload
       const loginData = {

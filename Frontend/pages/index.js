@@ -34,6 +34,7 @@ import {
   useDisclosure,
   ModalCloseButton,Input,
 } from '@chakra-ui/react'
+import { backendURL } from "./backendURL";
 export default function Home() {
   const router = useRouter();
   const toast = useToast();
@@ -55,7 +56,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const email = localStorage.getItem("email") // Define the email
-        const url = `http://192.168.242.52:8080/api/hospital/getHospital?email=${encodeURIComponent(email)}`;
+        const url = `${backendURL}/api/hospital/getHospital?email=${encodeURIComponent(email)}`;
   
         const response = await fetch(url);
         if (!response.ok) {
@@ -82,7 +83,7 @@ export default function Home() {
   const updateEquipment = async (name,id,count) => {
     try {
       const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = `http://192.168.242.52:8080/api/hospital/updateMedicalEquipment`;
+      const url = `${backendURL}/api/hospital/updateMedicalEquipment`;
       // Update the data
       const newData = { 
         hospitalId : id,
@@ -125,7 +126,7 @@ export default function Home() {
   const updateOperation = async (name,id,count) => {
     try {
       const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = "http://192.168.242.52:8080/api/hospital/updateOperationTheatre/"+id;
+      const url = `${backendURL}/api/hospital/updateOperationTheatre/`+id;
       // Update the data
       const newData = { 
         name: name,
@@ -167,7 +168,7 @@ export default function Home() {
   const updateDoctorcount = async (name,id,count) => {
     try {
       const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = `http://192.168.242.52:8080/api/hospital/updateDoctor`;
+      const url = `${backendURL}/api/hospital/updateDoctor`;
       // Update the data
       const newData = { 
         hospitalId : id,
@@ -209,7 +210,7 @@ export default function Home() {
   const addDoctor = async (id) => {
     try {
       const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = 'http://192.168.242.52:8080/api/hospital/createDoctor'; // Adjust the URL for adding a new doctor
+      const url = `${backendURL}/api/hospital/createDoctor`; // Adjust the URL for adding a new doctor
   
       // Data for creating a new doctor
 
@@ -268,7 +269,7 @@ export default function Home() {
   const addEquipment = async (id) => {
     try {
       const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = 'http://192.168.242.52:8080/api/hospital/addMedicalEquipment'; // Adjust the URL for adding a new doctor
+      const url = `${backendURL}/api/hospital/addMedicalEquipment`; // Adjust the URL for adding a new doctor
   
       // Data for creating a new doctor
 
@@ -328,7 +329,7 @@ export default function Home() {
   const addOperationTheater = async (id) => {
     try {
       const email = 'shaanagarwalofficial@gmail.com'; // Define the email
-      const url = 'http://192.168.242.52:8080/api/hospital/'+id+'/operation-theatre'; // Adjust the URL for adding a new doctor
+      const url = `${backendURL}/api/hospital/`+id+'/operation-theatre'; // Adjust the URL for adding a new doctor
   
       // Data for creating a new doctor
 
