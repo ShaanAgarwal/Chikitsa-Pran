@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Flex, Heading, Input,Avatar, InputGroup,Text, InputLeftElement, InputRightElement, Button, FormControl, FormLabel, FormErrorMessage, IconButton, Image } from "@chakra-ui/react";
+import { Box, Flex, Heading, Input, Avatar, InputGroup, Text, InputLeftElement, InputRightElement, Button, FormControl, FormLabel, FormErrorMessage, IconButton, Image } from "@chakra-ui/react";
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from 'react-icons/ai';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { useToast } from '@chakra-ui/react';
@@ -7,17 +7,19 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Pacifico } from 'next/font/google';
 import { backendURL } from './backendURL';
+
 const pacifico = Pacifico({ subsets: ['latin'], weight: '400' });
-function signup() {
+
+function Signup() {
   const [name, setName] = useState('');
   const [pfp, setPfp] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [x,setX]=useState(null);
-  const [y,setY]=useState(null);
-  const toast = useToast()
+  const [x, setX] = useState(null);
+  const [y, setY] = useState(null);
+  const toast = useToast();
   const router = useRouter();
 
   const handlePasswordChange = (e) => {
@@ -48,7 +50,6 @@ function signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    //   const email = 'shaanagarwalofficial@gmail.com'; // Define the email
       const url = `${backendURL}/api/hospital/registerHospital`; // Adjust the URL for adding a new doctor
       
       // Fetch geolocation information
@@ -74,7 +75,7 @@ function signup() {
         },
         body: JSON.stringify(newDoctorData),
       });
-            console.log(response);
+      console.log(response);
       if (!response.ok) {
         throw new Error('Failed to add new doctor');
       }
@@ -93,7 +94,7 @@ function signup() {
       alert('Error adding new doctor. Please check console for details.');
     }
   };
-  
+
   const getCurrentPosition = () => {
     return new Promise((resolve, reject) => {
       if (navigator.geolocation) {
@@ -103,58 +104,67 @@ function signup() {
       }
     });
   };
-  
 
   return (
     <Flex align="center" justify="center" minHeight="90vh">
       <Box width="400px" p={8} borderWidth={1} borderRadius={8} boxShadow="lg">
-      <Flex gap={'5px'} alignItems={'center'} justifyContent={'center'} w={'full'} h={'70px'}>
-            <Avatar size={'sm'} src='logo.png' name='logo' />
-            <h1 className={pacifico.className} style={{"fontSize":"23px"}} >
-        Chikitsapran
-        </h1>
-          </Flex>
+        <Flex gap={'5px'} alignItems={'center'} justifyContent={'center'} w={'full'} h={'70px'}>
+          <Avatar size={'sm'} src='logo.png' name='logo' />
+          <h1 className={pacifico.className} style={{ fontSize: "23px" }}>
+            Chikitsapran
+          </h1>
+        </Flex>
         <form onSubmit={handleSubmit}>
           <FormControl id="name" isRequired mb={4}>
             <FormLabel>Name</FormLabel>
             <InputGroup>
-              <InputLeftElement pointerEvents="none" children={<AiOutlineUser />} />
+              <InputLeftElement pointerEvents="none">
+                <AiOutlineUser />
+              </InputLeftElement>
               <Input type="text" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} />
             </InputGroup>
           </FormControl>
           <FormControl id="email" isRequired mb={4}>
             <FormLabel>Email address</FormLabel>
             <InputGroup>
-              <InputLeftElement pointerEvents="none" children={<AiOutlineMail />} />
+              <InputLeftElement pointerEvents="none">
+                <AiOutlineMail />
+              </InputLeftElement>
               <Input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </InputGroup>
           </FormControl>
           <FormControl id="password" isRequired mb={4}>
             <FormLabel>Password</FormLabel>
             <InputGroup>
-              <InputLeftElement pointerEvents="none" children={<AiOutlineLock />} />
+              <InputLeftElement pointerEvents="none">
+                <AiOutlineLock />
+              </InputLeftElement>
               <Input type="password" placeholder="Enter your password" value={password} onChange={handlePasswordChange} />
             </InputGroup>
           </FormControl>
           <FormControl id="confirmPassword" isRequired mb={4} isInvalid={passwordError !== ""}>
             <FormLabel>Confirm Password</FormLabel>
             <InputGroup>
-              <InputLeftElement pointerEvents="none" children={<RiLockPasswordLine />} />
+              <InputLeftElement pointerEvents="none">
+                <RiLockPasswordLine />
+              </InputLeftElement>
               <Input type="password" placeholder="Confirm your password" value={confirmPassword} onChange={handleConfirmPasswordChange} />
             </InputGroup>
             <FormErrorMessage>{passwordError}</FormErrorMessage>
           </FormControl>
           <FormControl id="profilePicture" mb={4}>
-          <Input type="text" placeholder="Enter your profile link" value={pfp} onChange={(e) => setPfp(e.target.value)} />
+            <Input type="text" placeholder="Enter your profile link" value={pfp} onChange={(e) => setPfp(e.target.value)} />
             {/* You can add an image preview here */}
           </FormControl>
           <Button type="submit" colorScheme="blue" width="full">Sign Up</Button>
         </form>
         <Text margin={'auto'} fontSize={'sm'} display={'inline-block'}>Already have an account?</Text>
-      <Link href={'/login'} display={'inline-block'} fontSize={'sm'}><Text color='teal' fontWeight={'bold'} margin={'auto'} fontSize={'sm'} display={'inline-block'}>&nbsp;Login</Text></Link>
+        <Link href={'/login'} passHref>
+          <Text color='teal' fontWeight={'bold'} margin={'auto'} fontSize={'sm'} display={'inline-block'}>&nbsp;Login</Text>
+        </Link>
       </Box>
     </Flex>
   );
 }
 
-export default signup;
+export default Signup;
