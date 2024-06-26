@@ -30,23 +30,7 @@ function Navbar() {
         });
         // Specify the path to your login page
     };
-
-
-    useEffect(() => {
-      const socket = io(); // Connects to the same host that serves the page
-  
-      // Example: Listening for a 'notification' event from the server
-      socket.on('notification', (data) => {
-        // console.log('Notification from server:', data);
-        setHw(data)
-        // Handle the notification as needed
-      });
-  
-      // Remember to clean up the socket connection when the component unmounts
-      return () => {
-        socket.disconnect();
-      };
-    }, []);
+    
   return (
     <div>
         <Box w={'100vw'} display={'flex'}  alignItems={'center'} p={'5px'} pr={'10px'} justifyContent={'right'} h={'50px'} boxShadow={'xl'}>

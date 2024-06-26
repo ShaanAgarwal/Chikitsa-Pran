@@ -1,10 +1,10 @@
 import React from 'react'
-import { Flex,Button } from '@chakra-ui/react'
+import { Flex, Button } from '@chakra-ui/react'
 import { useRouter } from 'next/router';
 import { backendURL } from './backendURL';
-function admin() {
 
-    const router=useRouter();
+function Admin() {
+    const router = useRouter();
 
     const handlePostMethod = () => {
         // Define the URL for your POST request
@@ -40,21 +40,19 @@ function admin() {
         });
     };
 
-
     const handleGetMethod = () => {
         // Define the URL for your POST request
         router.push(`${backendURL}/api/hospital/rejectionHospitalInformation`);
     };
 
-
-  return (
-    <div>
-        <Flex w='100vw' h='calc(100vh - 50px)' justifyContent={'center'} alignItems={'center'} gap={'10px'}>
-            <Button colorScheme={'teal'} onClick={handlePostMethod}>Excel</Button>
-            <Button colorScheme={'teal'} onClick={handleGetMethod}>Decline</Button>
-        </Flex>
-    </div>
-  )
+    return (
+        <div>
+            <Flex w='100vw' h='calc(100vh - 50px)' justifyContent={'center'} alignItems={'center'} gap={'10px'}>
+                <Button colorScheme={'teal'} onClick={handlePostMethod}>Excel</Button>
+                <Button colorScheme={'teal'} onClick={handleGetMethod}>Decline</Button>
+            </Flex>
+        </div>
+    );
 }
 
-export default admin
+export default Admin;
