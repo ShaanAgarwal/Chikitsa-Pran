@@ -6,7 +6,7 @@ import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Pacifico } from 'next/font/google';
-import { backendURL } from './backendURL';
+import { backendURL } from '../config/backendURL';
 
 const pacifico = Pacifico({ subsets: ['latin'], weight: '400' });
 

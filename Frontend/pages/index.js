@@ -48,7 +48,7 @@ import {
   ModalCloseButton,
   Input,
 } from "@chakra-ui/react";
-import { backendURL } from "./backendURL";
+import { backendURL } from "../config/backendURL";
 export default function Home() {
   const router = useRouter();
   const toast = useToast();

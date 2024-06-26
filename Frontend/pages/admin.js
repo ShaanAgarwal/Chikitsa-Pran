@@ -1,7 +1,7 @@
 import React from 'react'
 import { Flex, Button } from '@chakra-ui/react'
 import { useRouter } from 'next/router';
-import { backendURL } from './backendURL';
+import { backendURL } from '../config/backendURL';
 
 function Admin() {
     const router = useRouter();

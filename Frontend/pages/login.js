@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 
 import { Pacifico } from "next/font/google";
-import { backendURL } from "./backendURL";
+import { backendURL } from "../config/backendURL";
 
 const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
